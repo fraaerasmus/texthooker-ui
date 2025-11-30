@@ -252,6 +252,18 @@
 			settingsComponent.handleReset(true);
 		} else if ((event.ctrlKey || event.metaKey) && key === ' ') {
 			$isPaused$ = !$isPaused$;
+		} else if (key === 't' && lineElements.length > 0) {
+			// Translate last line with 't' key
+			const lastLineElement = lineElements[lineElements.length - 1];
+			if (lastLineElement?.translateLine) {
+				lastLineElement.translateLine();
+			}
+		} else if (key === 'd' && !event.shiftKey) {
+			// Delete last line with 'd' key
+			removeLastLine();
+		} else if (key === 'D' || (key === 'd' && event.shiftKey)) {
+			// Reset all lines with 'D' or Shift+d (skip confirmation)
+			settingsComponent.handleReset(true, true);
 		}
 	}
 
