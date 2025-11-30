@@ -90,6 +90,7 @@ export interface Settings {
 	unblurTLTimer$: number;
 	showTranslateButton$: boolean;
 	geminiApiKey$: string;
+	translationPrompt$: string;
 }
 
 export interface ExportedData {
