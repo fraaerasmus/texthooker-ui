@@ -192,6 +192,10 @@
 
 	$: pipLines = pipAvailable && $lineData$ ? $lineData$.slice(-$maxPipLines$) : [];
 
+	$: if ($lineData$ && lineContainer) {
+		tick().then(executeUpdateScroll);
+	}
+
 	$: if (pipWindow) {
 		pipWindow.document.body.dataset.theme = $theme$;
 
