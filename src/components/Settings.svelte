@@ -70,6 +70,7 @@
 		skipResetConfirmations$,
 		theme$,
 		timeValue$,
+		translationPrompt$,
 		unblurTLTimer$,
 		userNotes$,
 		websocketUrl$,
@@ -1019,6 +1020,14 @@
 			style="grid-column: 1/5;"
 			placeholder="Enter your Gemini API key"
 			bind:value={$geminiApiKey$}
+		/>
+		<span class="label-text" style="grid-column: 1/5;">Translation Prompt (use &#123;text&#125; as placeholder)</span>
+		<textarea
+			class="p-1 min-h-[5rem] font-mono"
+			style="grid-column: 1/5;"
+			rows="3"
+			placeholder={'Translate this Japanese text to English: {text}'}
+			bind:value={$translationPrompt$}
 		/>
 		<span class="label-text">Show Translate Button</span>
 		<input type="checkbox" class="checkbox checkbox-primary ml-2" bind:checked={$showTranslateButton$} />

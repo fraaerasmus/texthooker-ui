@@ -14,6 +14,7 @@
 		unblurTLTimer$,
 		showTranslateButton$,
 		geminiApiKey$,
+		translationPrompt$,
 	} from '../stores/stores';
 	import type { LineItem, LineItemEditEvent } from '../types';
 	import { dummyFn, newLineCharacter, updateScroll } from '../util';
@@ -115,6 +116,9 @@
 				return;
 			}
 
+			// Use custom prompt or default
+			const prompt = $translationPrompt$.replace('{text}', line.text);
+
 			// Use Gemini API for translation
 			const response = await fetch(
 				'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
@@ -127,7 +131,7 @@
 					body: JSON.stringify({
 						contents: [{
 							parts: [{
-								text: `Translate this Japanese text to English: ${line.text}`
+								text: prompt
 							}]
 						}]
 					}),
