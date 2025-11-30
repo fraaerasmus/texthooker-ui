@@ -69,7 +69,8 @@ export const defaultSettings: Settings = {
 	unblurTLTimer$: 0,
 	showTranslateButton$: true,
 	geminiApiKey$: '',
-	translationPrompt$: 'Translate this Japanese text to English: {text}',
+	translationPrompt$:
+		'Translate this text to English. DO NOT REPLY WITH ANYTHING OTHER THAN THE TRANSLATION. Text: {text}',
 };
 
 export const theme$ = writableStringSubject()('bannou-texthooker-theme', defaultSettings.theme$);
