@@ -33,6 +33,9 @@
 		return isSelected || range.intersectsNode(paragraph) ? line.id : undefined;
 	}
 
+	// Export translateLine so it can be called from keyboard shortcut
+	export { translateLine };
+
 	const dispatch = createEventDispatcher<{ deselected: string; selected: string; edit: LineItemEditEvent }>();
 
 	let paragraph: HTMLElement;

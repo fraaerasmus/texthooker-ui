@@ -97,8 +97,8 @@
 	export let settingsElement: SVGElement;
 	export let pipAvailable: boolean;
 
-	export async function handleReset(linesOnly: boolean) {
-		if (!$skipResetConfirmations$) {
+	export async function handleReset(linesOnly: boolean, skipConfirmation: boolean = false) {
+		if (!$skipResetConfirmations$ && !skipConfirmation) {
 			const { canceled } = await new Promise<DialogResult>((resolve) => {
 				$openDialog$ = {
 					icon: mdiHelpCircle,
