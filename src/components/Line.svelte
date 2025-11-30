@@ -99,14 +99,30 @@
 		const target = event.target as Node;
 
 		if (!paragraph.contains(target)) {
-			isEditable = false;
-			document.removeEventListener('click', clickOutsideHandler, false);
-
-			dispatch('edit', {
-				inEdit: false,
-				data: { originalText, newText: paragraph.innerText, lineIndex: index, line },
-			});
+			exitEditMode();
 		}
+	}
+
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			exitEditMode();
+			paragraph.blur();
+		}
+	}
+
+	function exitEditMode() {
+		if (!isEditable) {
+			return;
+		}
+
+		isEditable = false;
+		document.removeEventListener('click', clickOutsideHandler, false);
+
+		dispatch('edit', {
+			inEdit: false,
+			data: { originalText, newText: paragraph.innerText, lineIndex: index, line },
+		});
 	}
 
 	async function translateLine(blurTranslate: boolean = false) {
@@ -193,6 +209,7 @@
 			class:whitespace-pre-wrap={$preserveWhitespace$}
 			contenteditable={isEditable}
 			on:dblclick={handleDblClick}
+			on:keydown={handleKeyDown}
 			on:keyup={dummyFn}
 			bind:this={paragraph}
 			in:fly={{ x: isVerticalDisplay ? 100 : -100, duration: $enableLineAnimation$ ? 250 : 0 }}
