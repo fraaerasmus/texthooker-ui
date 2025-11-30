@@ -85,6 +85,11 @@ export interface Settings {
 	continuousReconnect$: boolean;
 	showConnectionErrors$: boolean;
 	customCSS$: string;
+	autoTranslateLines$: boolean;
+	blurAutoTranslatedLines$: boolean;
+	unblurTLTimer$: number;
+	showTranslateButton$: boolean;
+	geminiApiKey$: string;
 }
 
 export interface ExportedData {
@@ -129,6 +134,8 @@ export interface LineItem {
 	id: string;
 	text: string;
 	index?: number;
+	translation?: string;
+	blurTranslation?: boolean;
 }
 
 export interface LineItemEditEvent {

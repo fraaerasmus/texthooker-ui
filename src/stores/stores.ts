@@ -64,6 +64,11 @@ export const defaultSettings: Settings = {
 	continuousReconnect$: false,
 	showConnectionErrors$: true,
 	customCSS$: '',
+	autoTranslateLines$: false,
+	blurAutoTranslatedLines$: false,
+	unblurTLTimer$: 0,
+	showTranslateButton$: true,
+	geminiApiKey$: '',
 };
 
 export const theme$ = writableStringSubject()('bannou-texthooker-theme', defaultSettings.theme$);
@@ -241,6 +246,28 @@ export const showConnectionErrors$ = writableBooleanSubject()(
 );
 
 export const customCSS$ = writableStringSubject()('bannou-texthooker-customCSS', defaultSettings.customCSS$);
+
+export const autoTranslateLines$ = writableBooleanSubject()(
+	'bannou-texthooker-autoTranslateLines',
+	defaultSettings.autoTranslateLines$
+);
+
+export const blurAutoTranslatedLines$ = writableBooleanSubject()(
+	'bannou-texthooker-blurAutoTranslatedLines',
+	defaultSettings.blurAutoTranslatedLines$
+);
+
+export const unblurTLTimer$ = writableNumberSubject()(
+	'bannou-texthooker-unblurTLTimer',
+	defaultSettings.unblurTLTimer$
+);
+
+export const showTranslateButton$ = writableBooleanSubject()(
+	'bannou-texthooker-showTranslateButton',
+	defaultSettings.showTranslateButton$
+);
+
+export const geminiApiKey$ = writableStringSubject()('bannou-texthooker-geminiApiKey', defaultSettings.geminiApiKey$);
 
 export const timeValue$ = writableNumberSubject()('bannou-texthooker-timeValue', 0, persistStats$);
 

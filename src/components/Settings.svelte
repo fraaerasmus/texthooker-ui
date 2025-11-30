@@ -18,6 +18,8 @@
 		allowPasteDuringPause$,
 		autoStartTimerDuringPause$,
 		autoStartTimerDuringPausePaste$,
+		autoTranslateLines$,
+		blurAutoTranslatedLines$,
 		blockCopyOnPage$,
 		blurStats$,
 		characterMilestone$,
@@ -33,6 +35,7 @@
 		filterNonCJKLines$,
 		flashOnMissedLine$,
 		fontSize$,
+		geminiApiKey$,
 		lastSettingPreset$,
 		lineData$,
 		maxLines$,
@@ -63,9 +66,11 @@
 		showSpeed$,
 		showSpinner$,
 		showTimer$,
+		showTranslateButton$,
 		skipResetConfirmations$,
 		theme$,
 		timeValue$,
+		unblurTLTimer$,
 		userNotes$,
 		websocketUrl$,
 		windowTitle$,
@@ -1005,6 +1010,28 @@
 			rows="5"
 			value={$customCSS$}
 			on:blur={handleCustomCSSBlur}
+		/>
+		<span class="label-text" style="grid-column: 1/5; margin-top: 1rem; font-weight: bold;">Translation Settings</span>
+		<span class="label-text" style="grid-column: 1/5;">Gemini API Key</span>
+		<input
+			type="password"
+			class="input input-sm input-bordered"
+			style="grid-column: 1/5;"
+			placeholder="Enter your Gemini API key"
+			bind:value={$geminiApiKey$}
+		/>
+		<span class="label-text">Show Translate Button</span>
+		<input type="checkbox" class="checkbox checkbox-primary ml-2" bind:checked={$showTranslateButton$} />
+		<span class="label-text">Auto-translate Lines</span>
+		<input type="checkbox" class="checkbox checkbox-primary ml-2" bind:checked={$autoTranslateLines$} />
+		<span class="label-text">Blur Auto-translated Lines</span>
+		<input type="checkbox" class="checkbox checkbox-primary ml-2" bind:checked={$blurAutoTranslatedLines$} />
+		<span class="label-text">Unblur Translation Timer (s)</span>
+		<input
+			type="number"
+			class="input input-sm input-bordered ml-2 max-w-[4rem]"
+			min="0"
+			bind:value={$unblurTLTimer$}
 		/>
 	</div>
 {/if}
