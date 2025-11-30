@@ -219,11 +219,19 @@
 	}
 
 	function handleKeyPress(event: KeyboardEvent) {
+		const key = (event.key || '')?.toLowerCase();
+
+		// Handle settings toggle (works even when settings is open)
+		if (key === 's' || key === 'escape') {
+			if (key === 's' || (key === 'escape' && settingsOpen)) {
+				settingsOpen = !settingsOpen;
+				return;
+			}
+		}
+
 		if ($notesOpen$ || $dialogOpen$ || settingsOpen || lineInEdit) {
 			return;
 		}
-
-		const key = (event.key || '')?.toLowerCase();
 
 		if (key === 'delete') {
 			if (window.getSelection()?.toString().trim()) {
