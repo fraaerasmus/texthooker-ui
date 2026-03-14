@@ -14,6 +14,7 @@
 		{ keys: ['Alt', 'A'], description: 'Delete all lines & reset timer' },
 		{ keys: ['Alt', 'Q'], description: 'Delete all lines' },
 		{ keys: ['Ctrl', 'Space'], description: 'Pause / resume timer' },
+		{ keys: ['C'], description: 'Copy last line to clipboard' },
 		{ keys: ['T'], description: 'Translate last line' },
 	];
 </script>
