@@ -282,6 +282,8 @@
 			if (lastLineElement?.translateLine) {
 				lastLineElement.translateLine();
 			}
+		} else if (key === 'c' && $lineData$.length > 0) {
+			navigator.clipboard.writeText($lineData$[$lineData$.length - 1].text);
 		} else if (key === 'd' && !event.shiftKey) {
 			// Delete last line with 'd' key
 			removeLastLine();
