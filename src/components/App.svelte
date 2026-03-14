@@ -63,6 +63,7 @@
 		updateScroll,
 	} from '../util';
 	import DialogManager from './DialogManager.svelte';
+	import ShortcutsHelp from './ShortcutsHelp.svelte';
 	import Icon from './Icon.svelte';
 	import Line from './Line.svelte';
 	import Notes from './Notes.svelte';
@@ -78,6 +79,7 @@
 	let settingsContainer: HTMLElement;
 	let settingsElement: SVGElement;
 	let settingsOpen = false;
+	let helpOpen = false;
 	let lineContainer: HTMLElement;
 	let lineElements: Line[] = [];
 	let lineInEdit = false;
@@ -225,6 +227,16 @@
 	function handleKeyPress(event: KeyboardEvent) {
 		const key = (event.key || '')?.toLowerCase();
 
+		if (key === '?') {
+			helpOpen = !helpOpen;
+			return;
+		}
+
+		if (key === 'escape' && helpOpen) {
+			helpOpen = false;
+			return;
+		}
+
 		// Handle settings toggle (works even when settings is open)
 		if (key === 's' || key === 'escape') {
 			if (key === 's' || (key === 'escape' && settingsOpen)) {
@@ -233,7 +245,7 @@
 			}
 		}
 
-		if ($notesOpen$ || $dialogOpen$ || settingsOpen || lineInEdit) {
+		if ($notesOpen$ || $dialogOpen$ || settingsOpen || lineInEdit || helpOpen) {
 			return;
 		}
 
@@ -628,6 +640,10 @@
 {/if}
 
 <DialogManager />
+
+{#if helpOpen}
+	<ShortcutsHelp on:close={() => (helpOpen = false)} />
+{/if}
 
 <header class="fixed top-0 right-0 flex justify-end items-center p-2 bg-base-100" bind:this={settingsContainer}>
 	<Stats on:afkBlur={onAfkBlur} />
