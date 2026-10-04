@@ -1,28 +1,22 @@
 <script lang="ts">
 	import { mdiConnection } from '@mdi/js';
 	import { onMount } from 'svelte';
-	import { SocketConnection } from '../socket';
+	import { SocketConnection, socketChannels, type SocketChannel } from '../socket';
 	import {
 		continuousReconnect$,
 		isPaused$,
 		openDialog$,
-		reconnectSecondarySocket$,
-		reconnectSocket$,
-		secondarySocketState$,
-		secondaryWebsocketUrl$,
 		showConnectionErrors$,
-		socketState$,
-		websocketUrl$,
 	} from '../stores/stores';
 	import Icon from './Icon.svelte';
 
-	export let isPrimary = true;
+	export let channel: SocketChannel = socketChannels.primary;
 
 	let socketConnection: SocketConnection | undefined;
 	let intitialAttemptDone = false;
 	let wasConnected = false;
 	let closeRequested = false;
-	let socketState = isPrimary ? socketState$ : secondarySocketState$;
+	let socketState = channel.state$;
 
 	$: connectedWithLabel = updateConnectedWithLabel(wasConnected);
 
@@ -48,32 +42,31 @@
 				wasConnected = true;
 				break;
 			case 3:
-				const socketType = isPrimary ? 'primary' : 'secondary';
-				const socketUrl = isPrimary ? $websocketUrl$ : $secondaryWebsocketUrl$;
+				if (!channel.autoReconnect) {
+					if (
+						$showConnectionErrors$ &&
+						!closeRequested &&
+						intitialAttemptDone &&
+						channel.url$.getValue() &&
+						(wasConnected || !$continuousReconnect$)
+					) {
+						$openDialog$ = {
+							type: 'error',
+							message: wasConnected
+								? `Lost Connection to ${channel.name} Websocket`
+								: `Unable to connect to ${channel.name} Websocket`,
+							showCancel: false,
+						};
+					}
 
-				if (
-					$showConnectionErrors$ &&
-					!closeRequested &&
-					intitialAttemptDone &&
-					socketUrl &&
-					(wasConnected || !$continuousReconnect$)
-				) {
-					$openDialog$ = {
-						type: 'error',
-						message: wasConnected
-							? `Lost Connection to ${socketType} Websocket`
-							: `Unable to connect to ${socketType} Websocket`,
-						showCancel: false,
-					};
+					$isPaused$ = true;
 				}
-
-				$isPaused$ = true;
 
 				intitialAttemptDone = true;
 				wasConnected = false;
 
 				if (!closeRequested) {
-					(isPrimary ? reconnectSocket$ : reconnectSecondarySocket$).next();
+					channel.reconnect$.next();
 				}
 
 				break;
@@ -86,9 +79,7 @@
 	}
 
 	function updateConnectedWithLabel(hasConnection: boolean) {
-		return hasConnection
-			? `Connected with ${isPrimary ? $websocketUrl$ : $secondaryWebsocketUrl$}`
-			: 'Not Connected';
+		return hasConnection ? `Connected with ${channel.url$.getValue()}` : 'Not Connected';
 	}
 
 	async function toggleSocket() {
@@ -96,7 +87,7 @@
 			closeRequested = true;
 			socketConnection.disconnect();
 		} else {
-			socketConnection = socketConnection || new SocketConnection(isPrimary);
+			socketConnection = socketConnection || new SocketConnection(channel);
 			socketConnection.connect();
 		}
 	}

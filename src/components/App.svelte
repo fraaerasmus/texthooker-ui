@@ -22,6 +22,7 @@
 		autoStartTimerDuringPause$,
 		autoStartTimerDuringPausePaste$,
 		blockCopyOnPage$,
+		blurAutoTranslatedLines$,
 		customCSS$,
 		dialogOpen$,
 		displayVertical$,
@@ -50,6 +51,7 @@
 		secondaryWebsocketUrl$,
 		showSpinner$,
 		theme$,
+		translationWebsocketUrl$,
 		websocketUrl$,
 	} from '../stores/stores';
 	import { LineType, OnlineFont, Theme, type LineItem, type LineItemEditEvent } from '../types';
@@ -57,6 +59,7 @@
 		applyAfkBlur,
 		applyCustomCSS,
 		applyReplacements,
+		findLastIndex,
 		generateRandomUUID,
 		newLineCharacter,
 		reduceToEmptyString,
@@ -69,6 +72,7 @@
 	import Notes from './Notes.svelte';
 	import Presets from './Presets.svelte';
 	import Settings from './Settings.svelte';
+	import { socketChannels } from '../socket';
 	import SocketConnector from './SocketConnector.svelte';
 	import Spinner from './Spinner.svelte';
 	import Stats from './Stats.svelte';
@@ -89,6 +93,7 @@
 	let pipWindow: Window | undefined;
 	let pipResizeTimeout: number;
 	let hasPipFocus = false;
+	let blurWalk = false;
 
 	const wakeLockAvailable = 'wakeLock' in navigator;
 
@@ -284,6 +289,10 @@
 			}
 		} else if (key === 'c' && $lineData$.length > 0) {
 			navigator.clipboard.writeText($lineData$[$lineData$.length - 1].text);
+		} else if (key === 'b' && event.shiftKey) {
+			toggleTranslationBlur();
+		} else if (key === 'b') {
+			stepTranslationBlur();
 		} else if (key === 'd' && !event.shiftKey) {
 			// Delete last line with 'd' key
 			removeLastLine();
@@ -324,6 +333,29 @@
 
 		$lineData$ = applyEqualLineStartMerge(applyMaxLinesAndGetRemainingLineData());
 		$actionHistory$ = $actionHistory$;
+	}
+
+	function toggleTranslationBlur() {
+		const blurTranslation = !$blurAutoTranslatedLines$;
+
+		$blurAutoTranslatedLines$ = blurTranslation;
+		$lineData$ = $lineData$.map((line) => (line.translation ? { ...line, blurTranslation } : line));
+	}
+
+	// reveals translations newest first; once none are blurred, blurs them newest first
+	function stepTranslationBlur() {
+		const newest = (blurred: boolean) =>
+			findLastIndex($lineData$, (line) => !!line.translation && !!line.blurTranslation === blurred);
+		let index = newest(!blurWalk);
+
+		if (index < 0) {
+			blurWalk = !blurWalk;
+			index = newest(!blurWalk);
+		}
+
+		if (index >= 0) {
+			$lineData$[index] = { ...$lineData$[index], blurTranslation: blurWalk };
+		}
 	}
 
 	function removeLastLine() {
@@ -653,7 +685,10 @@
 		<SocketConnector />
 	{/if}
 	{#if $secondaryWebsocketUrl$}
-		<SocketConnector isPrimary={false} />
+		<SocketConnector channel={socketChannels.secondary} />
+	{/if}
+	{#if $translationWebsocketUrl$}
+		<SocketConnector channel={socketChannels.translation} />
 	{/if}
 	{#if $isPaused$}
 		<div

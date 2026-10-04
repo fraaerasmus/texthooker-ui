@@ -45,6 +45,7 @@ export interface Settings {
 	windowTitle$: string;
 	websocketUrl$: string;
 	secondaryWebsocketUrl$: string;
+	translationWebsocketUrl$: string;
 	fontSize$: number;
 	characterMilestone$: number;
 	onlineFont$: string;
@@ -100,8 +101,11 @@ export interface ExportedData {
 	'bannou-texthooker-actionHistory': LineItem[][];
 }
 
+// the API key stays out of presets and exports
+export type PresetSettings = Omit<Settings, 'geminiApiKey$'>;
+
 export interface ExportedSettings {
-	currentSettings: Settings;
+	currentSettings: PresetSettings;
 	settingPresets: SettingPreset[];
 	lastSettingsPreset: string;
 }
@@ -115,7 +119,7 @@ export interface ReplacementItem {
 
 export interface SettingPreset {
 	name: string;
-	settings: Settings;
+	settings: PresetSettings;
 }
 
 export interface DialogResult<T = undefined> {

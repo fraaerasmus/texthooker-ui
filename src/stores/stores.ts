@@ -23,7 +23,8 @@ export const defaultSettings: Settings = {
 	replacements$: [],
 	windowTitle$: '',
 	websocketUrl$: 'ws://localhost:6677',
-	secondaryWebsocketUrl$: '',
+	secondaryWebsocketUrl$: 'ws://127.0.0.1:2333/api/ws/text/origin',
+	translationWebsocketUrl$: 'ws://127.0.0.1:2333/api/ws/text/trans',
 	fontSize$: 24,
 	characterMilestone$: 0,
 	onlineFont$: OnlineFont.OFF,
@@ -65,7 +66,7 @@ export const defaultSettings: Settings = {
 	showConnectionErrors$: true,
 	customCSS$: '',
 	autoTranslateLines$: false,
-	blurAutoTranslatedLines$: false,
+	blurAutoTranslatedLines$: true,
 	unblurTLTimer$: 0,
 	showTranslateButton$: true,
 	geminiApiKey$: '',
@@ -86,6 +87,11 @@ export const websocketUrl$ = writableStringSubject()('bannou-texthooker-websocke
 export const secondaryWebsocketUrl$ = writableStringSubject()(
 	'bannou-texthooker-secondary-websocketUrl',
 	defaultSettings.secondaryWebsocketUrl$
+);
+
+export const translationWebsocketUrl$ = writableStringSubject()(
+	'bannou-texthooker-translation-websocketUrl',
+	defaultSettings.translationWebsocketUrl$
 );
 
 export const fontSize$ = writableNumberSubject()('bannou-texthooker-fontSize', defaultSettings.fontSize$);
@@ -286,6 +292,8 @@ export const socketState$ = writableSubject<number>(-1);
 
 export const secondarySocketState$ = writableSubject<number>(-1);
 
+export const translationSocketState$ = writableSubject<number>(-1);
+
 export const openDialog$ = writableSubject<Record<string, any>>(undefined);
 
 export const dialogOpen$ = writableSubject<boolean>(false);
@@ -311,6 +319,8 @@ export const newLine$ = new Subject<[string, LineType]>();
 export const reconnectSocket$ = new Subject<void>();
 
 export const reconnectSecondarySocket$ = new Subject<void>();
+
+export const reconnectTranslationSocket$ = new Subject<void>();
 
 export const showSpinner$ = writable<boolean>(false);
 
@@ -354,6 +364,7 @@ export async function resetAllData() {
 	windowTitle$.next(defaultSettings.windowTitle$);
 	websocketUrl$.next(defaultSettings.websocketUrl$);
 	secondaryWebsocketUrl$.next(defaultSettings.secondaryWebsocketUrl$);
+	translationWebsocketUrl$.next(defaultSettings.translationWebsocketUrl$);
 	fontSize$.next(defaultSettings.fontSize$);
 	characterMilestone$.next(defaultSettings.characterMilestone$);
 	onlineFont$.next(defaultSettings.onlineFont$);

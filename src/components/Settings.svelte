@@ -69,6 +69,7 @@
 		showTranslateButton$,
 		skipResetConfirmations$,
 		theme$,
+		translationWebsocketUrl$,
 		timeValue$,
 		translationPrompt$,
 		unblurTLTimer$,
@@ -142,6 +143,8 @@
 	$: websocketUrl = $websocketUrl$;
 
 	$: secondaryWebsocketUrl = $secondaryWebsocketUrl$;
+
+	$: translationWebsocketUrl = $translationWebsocketUrl$;
 
 	$: document.body.dataset.theme = $theme$;
 
@@ -817,6 +820,14 @@
 			class="input input-bordered h-8 col-span-2"
 			bind:value={secondaryWebsocketUrl}
 			on:change={handleSecondaryWebsocketChange}
+		/>
+		<span class="label-text col-span-2" title="Attaches each message to the latest line as its translation"
+			>Translation Websocket</span
+		>
+		<input
+			class="input input-bordered h-8 col-span-2"
+			bind:value={translationWebsocketUrl}
+			on:change={() => ($translationWebsocketUrl$ = translationWebsocketUrl)}
 		/>
 		<span class="label-text col-span-2">Font Size</span>
 		<input

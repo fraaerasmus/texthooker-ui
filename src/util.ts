@@ -4,6 +4,16 @@ import type { ReplacementItem } from './types';
 
 export function dummyFn() {}
 
+export function findLastIndex<T>(items: T[], predicate: (item: T) => boolean) {
+	for (let index = items.length - 1; index >= 0; index -= 1) {
+		if (predicate(items[index])) {
+			return index;
+		}
+	}
+
+	return -1;
+}
+
 export function reduceToEmptyString() {
 	return pipe(
 		map((): '' => ''),

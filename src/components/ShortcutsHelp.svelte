@@ -16,6 +16,8 @@
 		{ keys: ['Ctrl', 'Space'], description: 'Pause / resume timer' },
 		{ keys: ['C'], description: 'Copy last line to clipboard' },
 		{ keys: ['T'], description: 'Translate last line' },
+		{ keys: ['B'], description: 'Reveal translations newest first, then blur them' },
+		{ keys: ['Shift', 'B'], description: 'Toggle translation blur (all lines and new ones)' },
 	];
 </script>
 

@@ -232,6 +232,8 @@
 								this.style.filter = 'blur(8px)';
 							}
 						: undefined}
+					on:click={() => (line.blurTranslation = !line.blurTranslation)}
+					on:keyup={dummyFn}
 				>
 					<i>{line.translation}</i>
 				</p>

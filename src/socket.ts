@@ -1,45 +1,101 @@
-import { BehaviorSubject, NEVER, Subscription, filter, switchMap } from 'rxjs';
+import { BehaviorSubject, NEVER, Subject, Subscription, delay, filter, switchMap } from 'rxjs';
 import {
+	blurAutoTranslatedLines$,
 	continuousReconnect$,
+	lineData$,
 	newLine$,
 	reconnectSecondarySocket$,
 	reconnectSocket$,
+	reconnectTranslationSocket$,
 	secondarySocketState$,
 	secondaryWebsocketUrl$,
 	socketState$,
+	translationSocketState$,
+	translationWebsocketUrl$,
 	websocketUrl$,
 } from './stores/stores';
 
 import { LineType } from './types';
+
+export interface SocketChannel {
+	name: string;
+	url$: BehaviorSubject<string>;
+	state$: BehaviorSubject<number>;
+	reconnect$: Subject<void>;
+	handleMessage: (data: string) => void;
+	// retries on its own and never interrupts the user when it drops
+	autoReconnect?: boolean;
+}
+
+function appendLine(data: string) {
+	let line = data;
+
+	try {
+		line = JSON.parse(data)?.sentence || data;
+	} catch (_) {
+		// no-op
+	}
+
+	newLine$.next([line, LineType.SOCKET]);
+}
+
+function attachTranslation(translation: string) {
+	const lines = lineData$.getValue();
+	const index = lines.length - 1;
+
+	if (index >= 0) {
+		lines[index] = { ...lines[index], translation, blurTranslation: blurAutoTranslatedLines$.getValue() };
+		lineData$.next(lines);
+	}
+}
+
+export const socketChannels: Record<'primary' | 'secondary' | 'translation', SocketChannel> = {
+	primary: {
+		name: 'primary',
+		url$: websocketUrl$,
+		state$: socketState$,
+		reconnect$: reconnectSocket$,
+		handleMessage: appendLine,
+	},
+	secondary: {
+		name: 'secondary',
+		url$: secondaryWebsocketUrl$,
+		state$: secondarySocketState$,
+		reconnect$: reconnectSecondarySocket$,
+		handleMessage: appendLine,
+	},
+	translation: {
+		name: 'translation',
+		url$: translationWebsocketUrl$,
+		state$: translationSocketState$,
+		reconnect$: reconnectTranslationSocket$,
+		handleMessage: attachTranslation,
+		autoReconnect: true,
+	},
+};
 
 export class SocketConnection {
 	private websocketUrl: string;
 
 	private socket: WebSocket | undefined;
 
-	private socketState: BehaviorSubject<number>;
-
 	private subscriptions: Subscription[] = [];
 
-	constructor(isPrimary = true) {
-		this.socketState = isPrimary ? socketState$ : secondarySocketState$;
+	constructor(private channel: SocketChannel) {
 		this.subscriptions.push(
-			(isPrimary ? websocketUrl$ : secondaryWebsocketUrl$).subscribe((websocketUrl) => {
+			channel.url$.subscribe((websocketUrl) => {
 				if (websocketUrl !== this.websocketUrl) {
 					this.websocketUrl = websocketUrl;
 					this.reloadSocket();
 				}
 			}),
-			continuousReconnect$
-				.pipe(
-					switchMap((continuousReconnect) =>
-						continuousReconnect
-							? (isPrimary ? reconnectSocket$ : reconnectSecondarySocket$).pipe(
-									filter(() => this.socket?.readyState === 3)
-							  )
-							: NEVER
-					)
-				)
+			(channel.autoReconnect
+				? channel.reconnect$.pipe(delay(3000))
+				: continuousReconnect$.pipe(
+						switchMap((continuousReconnect) => (continuousReconnect ? channel.reconnect$ : NEVER))
+				  )
+			)
+				.pipe(filter(() => this.socket?.readyState === 3))
 				.subscribe(() => this.reloadSocket())
 		);
 	}
@@ -54,19 +110,19 @@ export class SocketConnection {
 		}
 
 		if (!this.websocketUrl) {
-			this.socketState.next(3);
+			this.channel.state$.next(3);
 			return;
 		}
 
-		this.socketState.next(0);
+		this.channel.state$.next(0);
 
 		try {
 			this.socket = new WebSocket(this.websocketUrl);
 			this.socket.onopen = this.updateSocketState.bind(this);
 			this.socket.onclose = this.updateSocketState.bind(this);
-			this.socket.onmessage = this.handleMessage.bind(this);
+			this.socket.onmessage = (event) => this.channel.handleMessage(event.data);
 		} catch (error) {
-			this.socketState.next(3);
+			this.channel.state$.next(3);
 		}
 	}
 
@@ -95,18 +151,6 @@ export class SocketConnection {
 			return;
 		}
 
-		this.socketState.next(this.socket.readyState);
-	}
-
-	private handleMessage(event: MessageEvent) {
-		let line = event.data;
-
-		try {
-			line = JSON.parse(event.data)?.sentence || event.data;
-		} catch (_) {
-			// no-op
-		}
-
-		newLine$.next([line, LineType.SOCKET]);
+		this.channel.state$.next(this.socket.readyState);
 	}
 }

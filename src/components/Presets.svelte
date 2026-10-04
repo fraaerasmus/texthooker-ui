@@ -8,7 +8,9 @@
 		allowPasteDuringPause$,
 		autoStartTimerDuringPause$,
 		autoStartTimerDuringPausePaste$,
+		autoTranslateLines$,
 		blockCopyOnPage$,
+		blurAutoTranslatedLines$,
 		blurStats$,
 		characterMilestone$,
 		continuousReconnect$,
@@ -51,25 +53,30 @@
 		showPresetQuickSwitch$,
 		showSpeed$,
 		showTimer$,
+		showTranslateButton$,
 		skipResetConfirmations$,
 		socketState$,
 		theme$,
+		translationPrompt$,
+		translationWebsocketUrl$,
+		unblurTLTimer$,
 		websocketUrl$,
 		windowTitle$,
 	} from '../stores/stores';
-	import type { DialogResult, SettingPreset, Settings } from '../types';
+	import type { DialogResult, PresetSettings, SettingPreset } from '../types';
 	import { dummyFn } from '../util';
 	import Icon from './Icon.svelte';
 
 	export let isQuickSwitch = false;
 
-	export function getCurrentSettings(): Settings {
+	export function getCurrentSettings(): PresetSettings {
 		return {
 			theme$: $theme$,
 			replacements$: $replacements$,
 			windowTitle$: $windowTitle$,
 			websocketUrl$: $websocketUrl$,
 			secondaryWebsocketUrl$: $secondaryWebsocketUrl$,
+			translationWebsocketUrl$: $translationWebsocketUrl$,
 			fontSize$: $fontSize$,
 			characterMilestone$: $characterMilestone$,
 			onlineFont$: $onlineFont$,
@@ -110,6 +117,11 @@
 			continuousReconnect$: $continuousReconnect$,
 			showConnectionErrors$: $showConnectionErrors$,
 			customCSS$: $customCSS$,
+			autoTranslateLines$: $autoTranslateLines$,
+			blurAutoTranslatedLines$: $blurAutoTranslatedLines$,
+			unblurTLTimer$: $unblurTLTimer$,
+			showTranslateButton$: $showTranslateButton$,
+			translationPrompt$: $translationPrompt$,
 		};
 	}
 
@@ -119,6 +131,7 @@
 		windowTitle$.next(preset.settings.windowTitle$ ?? defaultSettings.windowTitle$);
 		websocketUrl$.next(preset.settings.websocketUrl$ ?? defaultSettings.websocketUrl$);
 		secondaryWebsocketUrl$.next(preset.settings.secondaryWebsocketUrl$ ?? '');
+		translationWebsocketUrl$.next(preset.settings.translationWebsocketUrl$ ?? '');
 		fontSize$.next(preset.settings.fontSize$ ?? defaultSettings.fontSize$);
 		characterMilestone$.next(preset.settings.characterMilestone$ ?? defaultSettings.characterMilestone$);
 		onlineFont$.next(preset.settings.onlineFont$ ?? defaultSettings.onlineFont$);
@@ -171,6 +184,13 @@
 		continuousReconnect$.next(preset.settings.continuousReconnect$ ?? defaultSettings.continuousReconnect$);
 		showConnectionErrors$.next(preset.settings.showConnectionErrors$ ?? defaultSettings.showConnectionErrors$);
 		customCSS$.next(preset.settings.customCSS$ ?? defaultSettings.customCSS$);
+		autoTranslateLines$.next(preset.settings.autoTranslateLines$ ?? defaultSettings.autoTranslateLines$);
+		blurAutoTranslatedLines$.next(
+			preset.settings.blurAutoTranslatedLines$ ?? defaultSettings.blurAutoTranslatedLines$
+		);
+		unblurTLTimer$.next(preset.settings.unblurTLTimer$ ?? defaultSettings.unblurTLTimer$);
+		showTranslateButton$.next(preset.settings.showTranslateButton$ ?? defaultSettings.showTranslateButton$);
+		translationPrompt$.next(preset.settings.translationPrompt$ ?? defaultSettings.translationPrompt$);
 
 		if (updateLastPreset) {
 			$lastSettingPreset$ = preset.name;
