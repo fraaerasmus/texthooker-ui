@@ -59,7 +59,10 @@
 						};
 					}
 
-					$isPaused$ = true;
+					// a failed automatic retry must not pause a running timer
+					if (wasConnected || !$continuousReconnect$) {
+						$isPaused$ = true;
+					}
 				}
 
 				intitialAttemptDone = true;

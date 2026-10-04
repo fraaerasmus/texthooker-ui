@@ -1,4 +1,4 @@
-import { BehaviorSubject, NEVER, Subject, Subscription, delay, filter, switchMap } from 'rxjs';
+import { BehaviorSubject, NEVER, Subject, Subscription, delay, filter, of, switchMap } from 'rxjs';
 import {
 	blurAutoTranslatedLines$,
 	continuousReconnect$,
@@ -23,7 +23,7 @@ export interface SocketChannel {
 	state$: BehaviorSubject<number>;
 	reconnect$: Subject<void>;
 	handleMessage: (data: string) => void;
-	// retries on its own and never interrupts the user when it drops
+	// reconnects regardless of the setting and never interrupts the user when it drops
 	autoReconnect?: boolean;
 }
 
@@ -89,13 +89,11 @@ export class SocketConnection {
 					this.reloadSocket();
 				}
 			}),
-			(channel.autoReconnect
-				? channel.reconnect$.pipe(delay(3000))
-				: continuousReconnect$.pipe(
-						switchMap((continuousReconnect) => (continuousReconnect ? channel.reconnect$ : NEVER))
-				  )
-			)
-				.pipe(filter(() => this.socket?.readyState === 3))
+			(channel.autoReconnect ? of(true) : continuousReconnect$)
+				.pipe(
+					switchMap((reconnect) => (reconnect ? channel.reconnect$.pipe(delay(3000)) : NEVER)),
+					filter(() => this.socket?.readyState === 3)
+				)
 				.subscribe(() => this.reloadSocket())
 		);
 	}
