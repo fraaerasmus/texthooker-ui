@@ -15,6 +15,8 @@
 		showTranslateButton$,
 		geminiApiKey$,
 		translationPrompt$,
+		voiceAvailable$,
+		voiceUrl,
 	} from '../stores/stores';
 	import type { LineItem, LineItemEditEvent } from '../types';
 	import { dummyFn, newLineCharacter, updateScroll } from '../util';
@@ -36,7 +38,14 @@
 	// Export translateLine so it can be called from keyboard shortcut
 	export { translateLine };
 
+	export function playVoice() {
+		new Audio(`${voiceUrl}?line=${encodeURIComponent(line.text)}`).play().catch(dummyFn);
+	}
+
 	const dispatch = createEventDispatcher<{ deselected: string; selected: string; edit: LineItemEditEvent }>();
+
+	const buttonStyle =
+		'background-color: #333; color: #fff; border: 1px solid #555; padding: 6px 10px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; margin-top: 0.5rem; margin-left: auto;';
 
 	let paragraph: HTMLElement;
 	let originalText = '';
@@ -244,10 +253,15 @@
 				class="hover:bg-gray-700"
 				on:click={() => translateLine()}
 				title="Translate"
-				style="background-color: #333; color: #fff; border: 1px solid #555; padding: 6px 10px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; margin-top: 0.5rem; margin-left: auto;"
+				style={buttonStyle}
 				tabindex="-1"
 			>
 				🌐
+			</button>
+		{/if}
+		{#if $voiceAvailable$ && !pipWindow}
+			<button class="hover:bg-gray-700" on:click={playVoice} title="Play voice" style={buttonStyle} tabindex="-1">
+				🔊
 			</button>
 		{/if}
 	</div>

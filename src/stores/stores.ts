@@ -324,6 +324,11 @@ export const reconnectTranslationSocket$ = new Subject<void>();
 
 export const showSpinner$ = writable<boolean>(false);
 
+// vn-miner's local endpoint serving a line's voice clip
+export const voiceUrl = 'http://127.0.0.1:2334/voice';
+
+export const voiceAvailable$ = writable<boolean>(false);
+
 export const enabledReplacements$ = writable<ReplacementItem[]>([]);
 
 export const lastPipHeight$ = writableNumberSubject()('bannou-texthooker-lastPipHeight', 0);

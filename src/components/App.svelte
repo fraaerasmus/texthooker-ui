@@ -52,6 +52,8 @@
 		showSpinner$,
 		theme$,
 		translationWebsocketUrl$,
+		voiceAvailable$,
+		voiceUrl,
 		websocketUrl$,
 	} from '../stores/stores';
 	import { LineType, OnlineFont, Theme, type LineItem, type LineItemEditEvent } from '../types';
@@ -59,6 +61,7 @@
 		applyAfkBlur,
 		applyCustomCSS,
 		applyReplacements,
+		dummyFn,
 		findLastIndex,
 		generateRandomUUID,
 		newLineCharacter,
@@ -211,6 +214,7 @@
 
 	onMount(() => {
 		mountFunction();
+		fetch(voiceUrl, { mode: 'no-cors' }).then(() => ($voiceAvailable$ = true), dummyFn);
 		if (wakeLockAvailable) {
 			wakeLock = navigator.wakeLock
 				.request('screen')
@@ -287,6 +291,8 @@
 			if (lastLineElement?.translateLine) {
 				lastLineElement.translateLine();
 			}
+		} else if (key === 'p') {
+			lineElements[lineElements.length - 1]?.playVoice();
 		} else if (key === 'c' && $lineData$.length > 0) {
 			navigator.clipboard.writeText($lineData$[$lineData$.length - 1].text);
 		} else if (key === 'b' && event.shiftKey) {
