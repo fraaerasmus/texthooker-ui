@@ -51,6 +51,7 @@
 		secondaryWebsocketUrl$,
 		showSpinner$,
 		theme$,
+		translationSocketState$,
 		translationWebsocketUrl$,
 		voiceAvailable$,
 		voiceUrl,
@@ -97,6 +98,7 @@
 	let pipResizeTimeout: number;
 	let hasPipFocus = false;
 	let blurWalk = false;
+	let voiceReachable = false;
 
 	const wakeLockAvailable = 'wakeLock' in navigator;
 
@@ -194,6 +196,9 @@
 		reduceToEmptyString(),
 	);
 
+	// vn-miner only has voices while LunaTranslator runs, which its translation socket tells us
+	$: $voiceAvailable$ = voiceReachable && $translationSocketState$ === 1;
+
 	$: iconSize = isSmFactor ? '1.5rem' : '1.25rem';
 
 	$: $enabledReplacements$ = $replacements$.filter((replacment) => replacment.enabled);
@@ -214,7 +219,7 @@
 
 	onMount(() => {
 		mountFunction();
-		fetch(voiceUrl, { mode: 'no-cors' }).then(() => ($voiceAvailable$ = true), dummyFn);
+		fetch(voiceUrl, { mode: 'no-cors' }).then(() => (voiceReachable = true), dummyFn);
 		if (wakeLockAvailable) {
 			wakeLock = navigator.wakeLock
 				.request('screen')
@@ -291,7 +296,7 @@
 			if (lastLineElement?.translateLine) {
 				lastLineElement.translateLine();
 			}
-		} else if (key === 'p') {
+		} else if (key === 'p' && $voiceAvailable$) {
 			lineElements[lineElements.length - 1]?.playVoice();
 		} else if (key === 'c' && $lineData$.length > 0) {
 			navigator.clipboard.writeText($lineData$[$lineData$.length - 1].text);
